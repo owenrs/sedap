@@ -35,6 +35,64 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = Field(default="")
     FRONTEND_URL: str | None = Field(default=None)
 
+    QUEUE_PROVIDER: str = Field(
+        default="memory",
+        description="Background queue provider: 'memory' (in-process) or 'redis' (arq, future).",
+    )
+    MOCK_EXTRACTION_DELAY_SECONDS: float = Field(
+        default=3.0,
+        description="Simulated processing time for the mocked extraction worker.",
+        ge=0.0,
+    )
+    CHUNK_SIZE: int = Field(
+        default=500,
+        description="Target character length per text chunk.",
+        gt=0,
+    )
+    CHUNK_OVERLAP: int = Field(
+        default=50,
+        description="Overlap in characters between consecutive chunks.",
+        ge=0,
+    )
+    ENTITY_EXTRACTOR: str = Field(
+        default="rule",
+        description="Entity extractor provider: 'rule' (local rule-based) or 'llm' (future).",
+    )
+    ENTITY_KEYWORDS: str = Field(
+        default="Project,API,Report,Summary,Analysis,Database",
+        description="Comma-separated high-value keywords for the rule-based extractor.",
+    )
+    VECTOR_STORE_PROVIDER: str = Field(
+        default="memory",
+        description="Vector storage provider: 'memory' (in-process) or 'pgvector' (future).",
+    )
+    VECTOR_DIMENSION: int = Field(
+        default=128,
+        description="Fallback embedding dimension for vector records (mock generator uses this).",
+        gt=0,
+    )
+    EMBEDDING_PROVIDER: str = Field(
+        default="local",
+        description="Embedding engine: 'local' (dependency-free) or 'openai' (text-embedding-3-small).",
+    )
+    EMBEDDING_DIMENSION: int = Field(
+        default=384,
+        description="Vector dimension for the active embedding provider (384 local, 1536 openai).",
+        gt=0,
+    )
+    EMBEDDING_MODEL: str = Field(
+        default="text-embedding-3-small",
+        description="Model name for the OpenAI embedding provider.",
+    )
+    LLM_PROVIDER: str = Field(
+        default="local",
+        description="LLM engine: 'local' (offline mock) or 'openai' (chat completions).",
+    )
+    LLM_MODEL: str = Field(
+        default="gpt-5.6-terra",
+        description="Model name for the OpenAI chat completions provider.",
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:
