@@ -84,6 +84,14 @@ class Settings(BaseSettings):
         default="text-embedding-3-small",
         description="Model name for the OpenAI embedding provider.",
     )
+    LLM_PROVIDER: str = Field(
+        default="local",
+        description="LLM engine: 'local' (offline mock) or 'openai' (chat completions).",
+    )
+    LLM_MODEL: str = Field(
+        default="gpt-5.6-terra",
+        description="Model name for the OpenAI chat completions provider.",
+    )
 
 
 @lru_cache

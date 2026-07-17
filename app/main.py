@@ -9,6 +9,7 @@ from app.core.queue import JobQueue, get_queue
 from app.core.vector_store import VectorStorageClient, get_vector_store
 from app.services.embeddings import EmbeddingService, get_embedding_service
 from app.services.ingestion import extract_document
+from app.services.llm import LLMService, get_llm_service
 
 
 @asynccontextmanager
@@ -16,8 +17,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     queue: JobQueue = get_queue()
     vector_store: VectorStorageClient = get_vector_store()
     embedding_service: EmbeddingService = get_embedding_service()
+    llm_service: LLMService = get_llm_service()
     app.state.vector_store = vector_store
     app.state.embedding_service = embedding_service
+    app.state.llm_service = llm_service
 
     worker = lambda job_id, payload: extract_document(  # noqa: E731 - bound closure
         job_id, payload, vector_store=vector_store, embedding_service=embedding_service

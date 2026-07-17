@@ -318,4 +318,38 @@
     `vector_store`).
   - Local provider is offline/dependency-free; empty-result case returns 200 + [].
 
+---
+
+## Task 10: LLM Generation & Orchestration Layer Scaffolding
+
+- **Task ID:** TASK-010
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Establish an interface-driven LLM Orchestration Service with an offline
+  MockLLMProvider and an OpenAI chat-completions provider, plus a RAGOrchestrator
+  that stitches retrieved chunks into a prompt and returns a typed RAG response.
+- **Directives:**
+  1. Define `LLMService` ABC in `app/services/llm.py` with
+     `generate_response(prompt, system_message=None, max_tokens=500) -> str`.
+  2. Implement `MockLLMProvider` (offline, no key) echoing a deterministic block
+     with `prompt[:60]` + a clean summary.
+  3. Implement `OpenAILLMProvider` via async `httpx` POST to `/v1/chat/completions`.
+  4. Add `LLM_PROVIDER` (default "local"), `LLM_MODEL` (default "gpt-5.6-terra"),
+     reuse `OPENAI_API_KEY` in `app/core/config.py`.
+  5. Create `RAGOrchestrator` in `app/services/rag.py`: embed query -> vector
+     search -> stitch "Context:/Question:" prompt -> dispatch to LLM -> return
+     `RAGResponsePayload` (answer + chunk-id references).
+  6. Expose POST `/api/v1/query` in `app/api/v1/query.py` hooked to the orchestrator.
+- **Acceptance Criteria:**
+  - [x] Abstract `LLMService` isolates core code from cloud SDKs.
+  - [x] Full RAG sequence (Query -> Embed -> Vector Search -> Prompt Stitch -> LLM) coordinates end-to-end.
+  - [x] POST `/api/v1/query` works offline under local provider with no external network.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; changes committed to the feature branch.
+- **Notes / Risks:**
+  - RAGOrchestrator pulls context via the same store the search layer reads
+    (collection "chunks"); bind LLM service to app.state at lifespan.
+  - OpenAI provider fails fast without `OPENAI_API_KEY`; untested live (no key).
+  - Mock provider is deterministic/non-semantic; proves the transport + stitching.
+
 
