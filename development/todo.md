@@ -12,7 +12,7 @@
 - [x] Milestone: Chunking & Text Splitting Engine
   - *Directives:* Implement semantic or token-based splitters with overlapping margins to keep contextual integrity.
   - *Validation:* Unit tests verifying chunk limits, overlaps, and Metadata preservation (source file, UUID, page numbers).
-- [ ] Milestone: Entity Extraction Service integration
+- [x] Milestone: Entity Extraction Service integration
   - *Directives:* Hook up an NLP parser (or lightweight local spaCy/instructor-LLM layer) to extract key metadata entities from chunks.
 
 ## Phase 3: Vector Storage & Embedding Layer
