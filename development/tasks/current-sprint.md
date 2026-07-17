@@ -109,4 +109,43 @@
     installs stay lean.
   - Do NOT alter runtime behavior/config schema; this task is tooling only.
 
+---
+
+## Task 4: Async Ingestion Pipeline Scaffolding
+
+- **Task ID:** TASK-004
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Establish a non-blocking, asynchronous file-ingestion pipeline using a
+  clean in-memory queue (`asyncio.Queue` + background worker loop), abstracted
+  behind a `Queue` interface so an `arq`/Redis provider can drop in later with
+  zero route changes. No external Redis required.
+- **Directives:**
+  1. Define a queue interface/base in `app/core/queue.py` with `enqueue_job`
+     and `get_job_status`; `settings` controls queue config.
+  2. Implement `InMemoryQueue` using `asyncio.Queue` + a managed background
+     worker loop (run-to-completion tasks).
+  3. Define strict Pydantic job-status models (`job_id`, `status` ∈
+     {pending, processing, completed, failed}, `created_at`, `result`).
+  4. POST `/api/v1/ingest` accepts PDF/TXT/MD upload, enqueues a mock job
+     immediately, returns `202 Accepted` with `job_id` (never blocks).
+  5. GET `/api/v1/tasks/{job_id}` returns current job state/result.
+  6. Mock extraction in the worker (async sleep ~3s, then return mock
+     "Extracted text content" payload + metadata).
+- **Acceptance Criteria:**
+  - [x] No external Redis server required to boot or run the app.
+  - [x] POST `/api/v1/ingest` accepts uploads and returns `202 Accepted` with a unique job ID.
+  - [x] HTTP response returned immediately (< 50ms); file processed in background.
+  - [x] GET `/api/v1/tasks/{job_id}` tracks transitions (pending → processing → completed) when polled during the mock window.
+  - [x] Quality gates: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; changes committed cleanly to the local feature branch.
+- **Notes / Risks:**
+  - In-memory queue is process-local and non-durable — acceptable for baseline;
+    the `Queue` interface isolates this so a Redis/`arq` backend swaps in later
+    without touching routes (per operator directive).
+  - Worker loop must be started with the app lifecycle (e.g., on FastAPI startup)
+    so jobs run without a separate process for this baseline.
+  - Keep `settings` the single source of queue config (e.g., mock processing
+    delay / provider selection); no hardcoded tuning constants in routes.
+
 

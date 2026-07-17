@@ -35,6 +35,16 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = Field(default="")
     FRONTEND_URL: str | None = Field(default=None)
 
+    QUEUE_PROVIDER: str = Field(
+        default="memory",
+        description="Background queue provider: 'memory' (in-process) or 'redis' (arq, future).",
+    )
+    MOCK_EXTRACTION_DELAY_SECONDS: float = Field(
+        default=3.0,
+        description="Simulated processing time for the mocked extraction worker.",
+        ge=0.0,
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:
