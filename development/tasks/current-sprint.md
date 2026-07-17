@@ -212,4 +212,40 @@
   - Keep extractor keyword lists/type in settings to avoid hardcoded tuning in routes.
   - Entities stored under a dedicated `entities` key inside chunk `metadata`.
 
+---
+
+## Task 7: Embedded Vector Storage Layer Baseline
+
+- **Task ID:** TASK-007
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Establish a modular, interface-driven Vector Storage service with an
+  in-memory provider (no external DB) that stores chunk vectors and runs local
+  cosine-similarity search, behind a strict Pydantic record model.
+- **Directives:**
+  1. Define a `VectorStorageClient` ABC in `app/core/vector_store.py` with
+     `upsert_vectors(collection_name, records)` and
+     `search_vectors(collection_name, query_vector, limit, filters=None)`.
+  2. Implement `InMemoryVectorStore` tracking collections in process memory.
+  3. Write a dependency-free cosine-similarity function (float arrays).
+  4. Define strict Pydantic `VectorRecord` (`id`, `vector: list[float]`,
+     `payload: dict` mapping ChunkRecord content + metadata).
+  5. Add a deterministic mock vector generator (e.g., hashed/length-based
+     128-dim unit-normalized array) so collections can be populated/searched
+     without an embedding model.
+  6. Bind the store to `app.state.vector_store` on lifespan startup, via a
+     `VECTOR_STORE_PROVIDER` flag in settings.
+- **Acceptance Criteria:**
+  - [x] A formal `VectorStorageClient` abstract interface decouples layers from engines.
+  - [x] Chunks convert to mock vectors, upsert, and store in process memory.
+  - [x] Cosine similarity search ranks records in descending score order.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] Tracked in `current-sprint.md`; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - In-memory store is process-local/non-durable; the ABC lets a pgvector/
+    Qdrant/Redis backend swap in later with zero route changes.
+  - Mock vectors are deterministic but NOT semantic — real embeddings come in a
+    later milestone; this task only proves the storage/search transport.
+  - Keep `VECTOR_STORE_PROVIDER` + dimensionality in settings (no hardcoded tuning).
+
 

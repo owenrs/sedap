@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from app.api.v1 import router as v1_router
 from app.core.config import settings
 from app.core.queue import JobQueue, get_queue
+from app.core.vector_store import VectorStorageClient, get_vector_store
 from app.services.ingestion import extract_document
 
 
@@ -14,6 +15,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     queue: JobQueue = get_queue()
     await queue.start(extract_document)
     app.state.queue = queue
+
+    vector_store: VectorStorageClient = get_vector_store()
+    app.state.vector_store = vector_store
     try:
         yield
     finally:

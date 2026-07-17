@@ -62,6 +62,15 @@ class Settings(BaseSettings):
         default="Project,API,Report,Summary,Analysis,Database",
         description="Comma-separated high-value keywords for the rule-based extractor.",
     )
+    VECTOR_STORE_PROVIDER: str = Field(
+        default="memory",
+        description="Vector storage provider: 'memory' (in-process) or 'pgvector' (future).",
+    )
+    VECTOR_DIMENSION: int = Field(
+        default=128,
+        description="Embedding dimension for vector records (mock generator uses this).",
+        gt=0,
+    )
 
 
 @lru_cache
