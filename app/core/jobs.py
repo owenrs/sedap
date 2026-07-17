@@ -12,8 +12,17 @@ class JobStatus(str, Enum):
     failed = "failed"
 
 
+class ChunkRecord(BaseModel):
+    chunk_id: str
+    index: int
+    text_content: str
+    page_number: int | None = None
+    metadata: dict[str, object] = Field(default_factory=dict)
+
+
 class JobResult(BaseModel):
     extracted_text: str = ""
+    chunks: list[ChunkRecord] = Field(default_factory=list)
     metadata: dict[str, object] = Field(default_factory=dict)
 
 

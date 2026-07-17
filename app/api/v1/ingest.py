@@ -12,6 +12,16 @@ def _queue(request: Request) -> JobQueue:
     return request.app.state.queue  # type: ignore[no-any-return]
 
 
+def _decode_payload(ext: str, contents: bytes) -> str:
+    if ext == ".pdf":
+        # Baseline: no PDF parser dependency yet; mock clean-text extraction.
+        return (
+            "Mocked PDF clear-text stream. Real PDF parsing will be added in a "
+            "later ingestion milestone (e.g., via pypdf/pdfplumber)."
+        )
+    return contents.decode("utf-8", errors="replace")
+
+
 @router.post("/ingest", status_code=status.HTTP_202_ACCEPTED)
 async def ingest(request: Request, file: UploadFile = File(...)) -> dict[str, object]:  # noqa: B008
     ext = os.path.splitext(file.filename or "")[1].lower()
@@ -27,8 +37,10 @@ async def ingest(request: Request, file: UploadFile = File(...)) -> dict[str, ob
         "extract_document",
         {
             "filename": file.filename or "upload",
+            "ext": ext,
             "size": len(contents),
             "content_type": file.content_type or "",
+            "raw_text": _decode_payload(ext, contents),
         },
     )
     return {

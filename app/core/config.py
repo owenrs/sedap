@@ -44,6 +44,16 @@ class Settings(BaseSettings):
         description="Simulated processing time for the mocked extraction worker.",
         ge=0.0,
     )
+    CHUNK_SIZE: int = Field(
+        default=500,
+        description="Target character length per text chunk.",
+        gt=0,
+    )
+    CHUNK_OVERLAP: int = Field(
+        default=50,
+        description="Overlap in characters between consecutive chunks.",
+        ge=0,
+    )
 
 
 @lru_cache

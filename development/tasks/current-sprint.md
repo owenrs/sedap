@@ -148,4 +148,37 @@
   - Keep `settings` the single source of queue config (e.g., mock processing
     delay / provider selection); no hardcoded tuning constants in routes.
 
+---
+
+## Task 5: Chunking & Text Splitting Engine
+
+- **Task ID:** TASK-005
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Replace the placeholder extraction in the background worker with a
+  configurable text-chunking engine that splits raw text into overlapping,
+  metadata-rich chunks, returned as a structured array in the completed job result.
+- **Directives:**
+  1. Create `app/services/chunker.py` with a configurable chunker (`chunk_size`,
+     `chunk_overlap`).
+  2. Wire `CHUNK_SIZE` (default 500) and `CHUNK_OVERLAP` (default 50) into
+     `app/core/config.py` via Pydantic settings (no hardcoded tuning).
+  3. Update `app/services/ingestion.py` to extract raw text (native TXT/MD; PDF
+     read as clear-text stream or mocked cleanly) and pass it to the chunker.
+  4. Each chunk carries `chunk_id`, `text_content`, `page_number` (if applicable),
+     and `metadata` with the source file name.
+  5. Extend the job-result Pydantic schemas so a `completed` task returns this
+     array of chunk records in `result`.
+- **Acceptance Criteria:**
+  - [x] Chunking engine splits text using `CHUNK_SIZE` / `CHUNK_OVERLAP` from settings.
+  - [x] Overlap verified: end of chunk N matches start of chunk N+1.
+  - [x] GET `/api/v1/tasks/{job_id}` returns a structured array of chunks with per-chunk metadata when completed.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; changes committed cleanly to the isolated feature branch.
+- **Notes / Risks:**
+  - Character-based splitting for this baseline (token-based is a later enhancement);
+    keep the chunker interface open to a tokenizer strategy.
+  - Overlap must be strictly less than `chunk_size`; validate to avoid infinite/empty loops.
+  - PDF handling is mocked/clean-text only this baseline — no parser dependency added.
+
 
