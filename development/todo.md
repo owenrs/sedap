@@ -26,13 +26,13 @@
 ## Phase 4: Retrieval, Search, & RAG API
 - [x] Milestone: Chat Completion & Context Assembly Service
   - *Status:* Completed in TASK-010! Scaffolded `LLMService` ABC, `MockLLMProvider`, `OpenAILLMProvider`, `RAGOrchestrator`, and POST `/api/v1/query`.
-- [ ] Milestone: Hybrid Search implementation (Keyword BM25 + Dense Vector)
-  - *Directives:* Combine exact text matching with semantic vector search; implement Reciprocal Rank Fusion (RRF) for ranking. (Up next in TASK-011!)
-- [ ] Milestone: End-to-end Chat and Search REST endpoints
+- [x] Milestone: Hybrid Search implementation (Keyword BM25 + Dense Vector)
+  - *Directives:* Combine exact text matching with semantic vector search; implement Reciprocal Rank Fusion (RRF) for ranking. 
+- [x] Milestone: End-to-end Chat and Search REST endpoints
   - *Directives:* Secure and optimize the combined endpoints, verify fast API response times under 500ms, and ensure strict Pydantic payload models.
 
 ## Phase 5: Containerization & CI/CD Scaffolding
-- [ ] Milestone: Docker & Local Compose Dev Environment
+- [x] Milestone: Docker & Local Compose Dev Environment
   - *Directives:* Containerize the FastAPI application; compile light Alpine or slim-Debian multi-stage builds.
-- [ ] Milestone: Automated GitHub Actions CI Pipeline
+- [x] Milestone: Automated GitHub Actions CI Pipeline
   - *Directives:* Run Ruff, Mypy, and Pytest automatically on every Pull Request to `dev` or `main`.

@@ -352,4 +352,134 @@
   - OpenAI provider fails fast without `OPENAI_API_KEY`; untested live (no key).
   - Mock provider is deterministic/non-semantic; proves the transport + stitching.
 
+---
+
+## Task 11: Hybrid Search (BM25 + Dense Vector + RRF)
+
+- **Task ID:** TASK-011
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Upgrade retrieval to hybrid search: a BM25 sparse keyword index
+  alongside the dense vector index, fused via Reciprocal Rank Fusion (RRF, k=60).
+- **Directives:**
+  1. Add `rank-bm25==0.2.2` to `requirements.txt`.
+  2. Extend `InMemoryVectorStore` (or a unified hybrid wrapper in
+     `app/core/vector_store.py`) to hold a process-local BM25 corpus per
+     collection; handle empty corpus gracefully.
+  3. Ingestion pipeline tokenizes each chunk (lowercase alphabetic split) and feeds
+     the BM25 corpus as well as the dense vectors.
+  4. Implement an optimized `reciprocal_rank_fusion(rank_lists, k=60)` function.
+  5. Add `search_hybrid(query_text, limit)` to the client interface + store: runs
+     dense cosine ranking AND BM25, then RRF-fuses, returns descending order.
+  6. Wire GET `/api/v1/search` and `RAGOrchestrator` to use hybrid search (default).
+- **Acceptance Criteria:**
+  - [x] Ingestion updates both sparse BM25 corpus and dense vector space.
+  - [x] RRF re-ranks the unified results from overlapping system ranks.
+  - [x] GET `/api/v1/search` and POST `/api/v1/query` use hybrid search natively.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - BM25 corpus is corpus-order based; map BM25 doc index back to chunk_id so
+    fused hits carry the right payload.
+  - Keep RRF constant k=60 in settings or a module constant (no magic numbers).
+  - Fallback: if BM25 corpus empty, dense ranking alone should still return hits.
+
+---
+
+## Task 12: Conversational Memory & Optimized API Boundary
+
+- **Task ID:** TASK-012
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Add interface-driven Conversational Memory (multi-turn sessions),
+  query condensation over history, and an optimized `/api/v1/chat` boundary with
+  latency instrumentation.
+- **Directives:**
+  1. Define `ChatMessage` (`role`, `content`, `timestamp`) in `app/core/memory.py`.
+  2. Define `BaseMemoryStore` ABC (`get_history`, `add_message`).
+  3. Implement `InMemoryMemoryStore` tracking sessions in a dict (isolated).
+  4. Enhance `RAGOrchestrator` to accept optional `session_id`: if history exists,
+     condense raw input + history into a standalone search query via `LLMService`,
+     run `search_hybrid`, then persist user query + assistant answer to memory.
+  5. Add POST `/api/v1/chat` (`session_id`, `message`) in `app/api/v1/chat.py`,
+     wired into the v1 router, returning references to grounding chunks.
+  6. Add request-latency middleware verifying < 500ms under local mock flags.
+- **Acceptance Criteria:**
+  - [x] Multi-turn tracking links follow-up queries to original history.
+  - [x] Session states isolated inside the memory adapter.
+  - [x] POST `/api/v1/chat` handles sequential responses, appending grounding references.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - Bind `BaseMemoryStore` to `app.state.memory_store` at lifespan.
+  - Condensation only triggers when history is non-empty; single-turn chat behaves
+    like /query.
+  - Latency middleware logs elapsed ms per request; assert < 500ms in local E2E.
+
+---
+
+## Task 13: Production Docker & Multi-Stage Compose Dev Environment
+
+- **Task ID:** TASK-013
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Containerize the FastAPI app + background worker topology with a
+  multi-stage, non-root Dockerfile and a Compose network (web-api + worker).
+- **Directives:**
+  1. Root `Dockerfile`, 2-stage: `builder` (`python:3.11-slim` + build tools)
+     compiles wheels into a local cache; `runner` (`python:3.11-slim`) creates
+     `appuser` (UID/GID 10001) and installs `--no-cache-dir --no-index
+     --find-links` from the wheel cache.
+  2. Expose `8000`; CMD `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+  3. `.dockerignore` excluding `.venv`, caches, tests, raw docs, secrets.
+  4. `docker-compose.yml`: `web-api` (build, 8000:8000, env files) and
+     `background-worker` (same image, worker run command) on one network.
+- **Acceptance Criteria:**
+  - [x] Dockerfile builds end-to-end without leaking network installs into the runner layer.
+  - [x] Container runs as non-root `appuser`.
+  - [x] `docker compose up --build -d` provisions both api + worker cleanly.
+  - [x] Quality gates green: `ruff check .` and `mypy app/` 0 errors.
+  - [x] `current-sprint.md` updated; committed to the feature branch.
+- **Notes / Risks:**
+  - Worker command needs an entrypoint that starts the FastAPI app + the
+    in-process queue worker (the app already starts the worker on lifespan), so
+    the worker container can run the same `uvicorn app.main:app` minus the
+    external port, or a dedicated worker script. Keep it simple: worker runs the
+    same app (worker loop is in-process) without exposing 8000.
+  - Python 3.11 chosen (directive); venv/pyproject lint tooling is dev-only and
+    not baked into the runtime image.
+   - Cannot run `docker` in this WSL-less Windows shell here; build/compose
+     verification is the operator's step (documented), not executed by the agent.
+
+---
+
+## Task 14: Automated GitHub Actions CI Pipeline
+
+- **Task ID:** TASK-014
+- **Phase / Sprint:** Phase 5 — Containerization & CI/CD Scaffolding
+- **Owner Role:** Builder
+- **Goal:** Establish an automated CI workflow that runs code quality, type checks,
+  and unit tests on every Push or Pull Request targeting the `dev` or `main`
+  branches.
+- **Directives:**
+  1. Create `.github/workflows/ci.yml`.
+  2. Trigger on `push` to `[main, dev]` and `pull_request` targeting `[main, dev]`.
+  3. Single job `test-and-lint` on `ubuntu-latest`.
+  4. Steps: checkout (`actions/checkout@v4`), setup Python 3.11 (`actions/setup-python@v5`),
+     pip cache, install deps (`requirements.txt` + `pytest`, `ruff`, `mypy`),
+     `ruff check .`, `mypy app/`, `pytest`.
+  5. Fail fast on non-zero exit from any quality gate.
+- **Acceptance Criteria:**
+  - [x] `.github/workflows/ci.yml` is valid and committed.
+  - [x] Pipeline handles Python 3.11 setup, dependency caching, and checks cleanly.
+  - [x] Quality gates: `ruff check .` and `mypy app/` return 0 errors in CI.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - No project test suite exists yet; add a minimal `tests/test_smoke.py` that
+    imports app modules to ensure `pytest` collects and passes at least one test.
+  - `requirements-dev.txt` is not used by CI; workflow installs `pytest`, `ruff`,
+    `mypy` directly per directive.
+  - Workflow is declarative only; local execution in this Windows shell cannot
+    validate GitHub Actions runs (operator verifies in GitHub UI after push).
+
 
