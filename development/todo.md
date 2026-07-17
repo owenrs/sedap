@@ -26,7 +26,7 @@
 ## Phase 4: Retrieval, Search, & RAG API
 - [x] Milestone: Chat Completion & Context Assembly Service
   - *Status:* Completed in TASK-010! Scaffolded `LLMService` ABC, `MockLLMProvider`, `OpenAILLMProvider`, `RAGOrchestrator`, and POST `/api/v1/query`.
-- [ ] Milestone: Hybrid Search implementation (Keyword BM25 + Dense Vector)
+- [x] Milestone: Hybrid Search implementation (Keyword BM25 + Dense Vector)
   - *Directives:* Combine exact text matching with semantic vector search; implement Reciprocal Rank Fusion (RRF) for ranking. (Up next in TASK-011!)
 - [ ] Milestone: End-to-end Chat and Search REST endpoints
   - *Directives:* Secure and optimize the combined endpoints, verify fast API response times under 500ms, and ensure strict Pydantic payload models.
