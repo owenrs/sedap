@@ -15,7 +15,7 @@ from app.core.jobs import (
 logger = logging.getLogger("sedap.queue")
 
 EnqueueResult = JobStatusPayload
-WorkerFn = Callable[[str, dict[str, object]], Awaitable[JobResult]]
+WorkerFn = Callable[..., Awaitable[JobResult]]
 
 
 class JobQueue(ABC):

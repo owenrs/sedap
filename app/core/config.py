@@ -68,8 +68,21 @@ class Settings(BaseSettings):
     )
     VECTOR_DIMENSION: int = Field(
         default=128,
-        description="Embedding dimension for vector records (mock generator uses this).",
+        description="Fallback embedding dimension for vector records (mock generator uses this).",
         gt=0,
+    )
+    EMBEDDING_PROVIDER: str = Field(
+        default="local",
+        description="Embedding engine: 'local' (dependency-free) or 'openai' (text-embedding-3-small).",
+    )
+    EMBEDDING_DIMENSION: int = Field(
+        default=384,
+        description="Vector dimension for the active embedding provider (384 local, 1536 openai).",
+        gt=0,
+    )
+    EMBEDDING_MODEL: str = Field(
+        default="text-embedding-3-small",
+        description="Model name for the OpenAI embedding provider.",
     )
 
 

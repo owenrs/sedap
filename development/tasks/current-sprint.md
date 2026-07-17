@@ -248,4 +248,40 @@
     later milestone; this task only proves the storage/search transport.
   - Keep `VECTOR_STORE_PROVIDER` + dimensionality in settings (no hardcoded tuning).
 
+---
+
+## Task 8: Embedding Generation & Synchronization Engine
+
+- **Task ID:** TASK-008
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Establish an interface-driven Embedding Service that replaces the mock
+  vector generator, converting chunk text into real multi-dimensional vectors via
+  a local engine or the OpenAI API, and upserts them into the vector store.
+- **Directives:**
+  1. Define `EmbeddingService` ABC in `app/services/embeddings.py` with
+     `generate_embeddings(texts: list[str]) -> list[list[float]]`.
+  2. Implement `LocalEmbeddingProvider` (dependency-free local generator;
+     `fastembed` if acceptable within local limits).
+  3. Implement `OpenAIEmbeddingProvider` making async HTTP calls to the OpenAI
+     v1 embeddings API (`text-embedding-3-small`), using `OPENAI_API_KEY`.
+  4. Add `EMBEDDING_PROVIDER` (default local) and `EMBEDDING_DIMENSION` (384 local
+     / 1536 OpenAI) to `app/core/config.py`.
+  5. Wire into `app/services/ingestion.py`: after chunking, embed the chunk texts
+     and upsert real `VectorRecord`s into the `VectorStorageClient`.
+  6. Add required external libs to `requirements.txt`.
+- **Acceptance Criteria:**
+  - [x] Abstract `EmbeddingService` interface decouples pipeline from AI providers.
+  - [x] Document chunks mapped to real multi-dimensional float arrays before indexing.
+  - [x] Toggling `EMBEDDING_PROVIDER` in `.env` seamlessly changes the engine.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - Local provider must be dependency-free (no network) so the app runs offline;
+    a lightweight hashed/term-frequency vector space is acceptable as the local
+    fallback (real local models like fastembed need a heavy download — confirm
+    with operator before adding).
+  - OpenAI provider requires `OPENAI_API_KEY`; fail fast if missing when selected.
+  - Upsert into the same collection the search layer reads; chunk_id is the vector id.
+
 
