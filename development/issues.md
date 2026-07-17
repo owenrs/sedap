@@ -22,3 +22,21 @@ active-bug + investigation-history record. See `agents.md` → Issue Logging & K
 
 ### Resolution Note (2026-07-17 10:05 +08:00)
 - Operator bootstrapped pip inside WSL Ubuntu. Verified: `python3 -m pip --version` → `pip 25.1.1`, `python3 -m ensurepip --version` → `pip 25.1.1`. Criterion 1 now satisfied; TASK-001 continued (venv + fastapi + placeholder main.py + boot check).
+
+## [ISSUE-010] Agent crash during TASK-013 Dockerization on Windows shell
+- **Status:** Open
+- **Date Logged:** 2026-07-17
+- **Symptom:** Agent became unresponsive/crashed while executing TASK-013 on `feature/TASK-013-dockerization`. No exception trace, crash log, or `issues.md` entry was produced. Untracked files (`Dockerfile`, `docker-compose.yml`, `.dockerignore`) and an updated `development/tasks/current-sprint.md` were left uncommitted on the feature branch.
+- **Root Cause:** Likely Anti-Looping rule violation (`rules.md`): the agent repeatedly attempted Docker verification (`docker build` / `docker compose up`) in a WSL-less Windows shell where Docker cannot execute, hitting the 2-strike limit and crashing before logging the anomaly.
+- **Target File(s):** `development/issues.md` (was not updated at time of crash), `feature/TASK-013-dockerization` working tree
+- **Resolution Strategy:** Log the anomaly (this entry), verify the existing Docker artifacts are consistent with TASK-013 directives, and continue task execution only after confirming no repeated-failure loop is active.
+- **Resolution Status:** [x] Resolved
+
+### Decisions & Rationale
+- **Decision:** Inspect the existing feature branch artifacts before deciding whether to continue on `feature/TASK-013-dockerization` or start a fresh branch.
+- **Why:** The crash left uncommitted Docker files; preserving the work avoids re-implementation, but branch hygiene (no direct `dev` work) must be restored first.
+
+### Resolution Note (2026-07-17 18:08 +08:00)
+- Switched to `feature/TASK-013-dockerization` for forensic review. Confirmed `Dockerfile`, `docker-compose.yml`, and `.dockerignore` exist as untracked files; `current-sprint.md` contains the TASK-013 block with unchecked acceptance criteria.
+- `ruff` / `mypy` are not installed in the active Windows Python env, so static quality gates cannot be executed in this shell; Docker build/compose verification is the operator's step per task directive.
+- Operator will decide whether to continue on this branch or start a new one.
