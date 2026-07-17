@@ -68,9 +68,8 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 - Database/Docker commands must target explicit instances (see `rules.md` → Explicit Environmental Scope).
 
 ## Remote Guardrails
-- Agents may `git add` / `git commit` **locally only**.
-- Autonomous `git push` (and any remote interaction) is **forbidden**.
-- **Remote Guardrail:** Do not execute `git push` or open remote pull requests. The human operator controls remote synchronization.
+- **Allowed:** Agents have full authority to execute `git push` to synchronize their active `feature/` branches with the remote repository upon task completion.
+- **Forbidden:** Agents must NEVER push directly to the `dev` or `master` branches, nor attempt to merge feature branches into `dev` autonomously. Branch integration and primary branch updates are strictly restricted to the human operator.
 
 ## Reporting Format (required for completion reports)
 - **Status:** brief summary
