@@ -29,15 +29,50 @@
   - Do NOT implement application logic, ingestion, or embedding features yet — this task only establishes the baseline and confirms the server runs.
   - Pin dependency versions in the manifest to keep the environment reproducible (Architect to confirm pinning policy if needed).
 
-  # Current Sprint — Task Tracking
+---
+
+## Task 2: Configuration Layer & Multi-Environment Baseline
 
 - **Task ID:** TASK-002
-- **Phase / Sprint:** Phase 1 / Sprint 1
-- **Owner Role:** Builder
-- **Goal:** Implement async document ingestion baseline.
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder (Architect sign-off on settings schema)
+- **Goal:** Establish a type-safe settings engine using `pydantic-settings` that
+  loads and strictly validates environment variables (DB credentials, app mode,
+  secrets) from `.env`/`.env.local` with no hardcoded keys.
 - **Directives:**
-  1. Set up File upload via FormData multipart.
-  2. Implement BackgroundTasks worker placeholder in FastAPI.
+  1. Add `pydantic-settings` (and `pydantic`) to the dependency manifest and pin versions.
+  2. Define a `Settings` model that parses required environment variables — at
+     minimum `DATABASE_URL`, `SECRET_KEY`, and an app mode (e.g., `APP_ENV` ∈
+     {dev, test, prod}) — via `pydantic-settings` `BaseSettings`, not scattered
+     `os.environ.get()` (per `knowledge/environment.md` rules).
+  3. Provide an `.env.example` with placeholders only (no real secrets), and
+     ensure `.env` / `.env.local` stay git-ignored.
+  4. Wire the settings module so `main.py` imports and instantiates it at
+     startup, surfacing a clear failure if required vars are missing.
 - **Acceptance Criteria:**
-  - [ ] Router accepts multi-part file payloads.
-  - [ ] Server instantiates without errors or compiler warnings.
+  - [x] `pydantic-settings` is added to `requirements.txt` and pinned.
+  - [x] A `Settings` (or `AppConfig`) model exists loading env vars via
+       `BaseSettings`, with required fields `DATABASE_URL`, `SECRET_KEY`, and
+       `APP_ENV` strictly validated (types + allowed values).
+  - [x] No secrets or credentials are hardcoded anywhere in source; all values
+       resolve from the environment.
+  - [x] `.env.example` exists with placeholder-only values; `.env` / `.env.local`
+       are git-ignored.
+  - [x] Loading valid env vars instantiates settings without error; omitting a
+       required var raises a validation error at import/instantiation (no silent
+       fallback).
+  - [x] Linting and formatting checks pass (`ruff check .` or `flake8`).
+  - [x] Type checks pass (`mypy .` if using strict type annotations).
+  - [x] Server instantiates without errors or compiler warnings.
+- **Notes / Risks:**
+  - `knowledge/environment.md` already mandates `pydantic-settings` over
+    `os.environ.get()` — honor that rule; do not scatter env reads.
+  - Decide where the settings module lives (e.g., `app/core/config.py`) —
+    coordinate with the eventual `app/` layout referenced in `environment.md`
+    Quick Start (`uvicorn app.main:app`); keep this task decoupled from DB logic.
+  - `SECRET_KEY` must be required (no default) to avoid insecure dev footguns;
+    `APP_ENV` default may be `dev` but document the choice.
+  - Do NOT implement database connections or ORM models here — only the
+    config/validation surface.
+
+
