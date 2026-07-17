@@ -62,3 +62,7 @@ Three operational personas (see `architecture.md` for the full breakdown):
 | Windows/Docker/Env fixes | `knowledge/troubleshooting.md`, `knowledge/environment.md` |
 | Current sprint tasks | `tasks/current-sprint.md` |
 | New task / issue boilerplate | `templates/` |
+
+### Onboarding Sound-Off Requirement
+Upon completing the reading of onboarding materials, the agent MUST issue a formal initialization sign-off matching this exact pattern:
+"🚨 SYSTEM ENGAGED // Persona: [Agent Name] // Onboarding Complete. Bounded by [Project Name] OS. Awaiting Task execution."

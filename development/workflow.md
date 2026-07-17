@@ -15,10 +15,11 @@ The standardized lifecycle, branching policy, commit format, and local execution
 ### 3. Plan
 - Output a 2-sentence plan for that one task.
 - Ask the human for permission before writing code (unless explicitly pre-approved).
+- **Branch Prerequisite:** Once the plan is approved, the very first command executed MUST be creating the task branch. Do not modify workspace files on `dev` or `master`.
 
 ### 4. Execute
-- Implement on a feature branch (never `master`/`dev` directly).
-- Keep edits atomic and strictly within scope.
+- **Branch Verification:** Confirm you have successfully checked out the dedicated feature branch. Name it exactly following the pattern: `feature/TASK-XXX-short-slug` (matching the Task ID from `current-sprint.md`).
+- Implement the task, keeping edits atomic and strictly within scope.
 
 ### 5. Verify (mandatory completion gate)
 All four reviews must pass before proceeding to Phase 6.
@@ -26,18 +27,20 @@ All four reviews must pass before proceeding to Phase 6.
 - **Requirement review:** Does the work solve the requested problem? Check against the active acceptance criteria in `tasks/current-sprint.md` / `todo.md`.
 - **Technical review:** Is architecture respected? Check against the governing ADR (if any) and `architecture.md` system shape. No unapproved file-tree, schema, or dependency changes.
 - **Quality review:**
-  - If a test suite is present: `Tests pass`.
-  - If no test suite is present: `npm run build` passes + `tsc --noEmit` passes + `npm run lint` passes.
+  - If a test suite is present: `Tests pass` (e.g., `pytest` for Python backend, `vitest`/`playwright` for frontend).
+  - **If no test suite is present:**
+    - **Frontend:** `npm run build` passes + type checks pass (`tsc --noEmit` if TypeScript) + `npm run lint` passes.
+    - **Backend (Python):** Python syntax/types compile without error, and standard linter/format checks pass (`ruff check .`, `black --check`, or `flake8` as defined in `rules.md`).
   - Errors are handled gracefully (no unhandled rejections, no raw DB exceptions to the client).
 - **Documentation review:**
   - Decisions recorded: architectural/schema/dependency decisions have an ADR in `development/decisions/`; resolution-time choices have a `### Decisions & Rationale` block in `development/issues.md`.
-  - Tasks updated: `todo.md` checkboxes reflect actual state.
+  - **Tasks updated:** The agent MUST explicitly check off the completed task checkboxes `[x]` inside `development/tasks/current-sprint.md` before proceeding to Phase 6. High-level roadmap items in `todo.md` remain unchecked until the operator integrates the feature branch.
   - Knowledge promoted: reusable lessons moved to `development/knowledge/` (or `rules.md` if universal); `issues.md` entry has a `**Knowledge:**` pointer.
 
 ### 6. Report
 - Commit locally with a conventional message.
-- Emit the standardized report (see Reporting Format below).
-- **Halt.** Do not push; instruct the operator to run `git push`.
+- Synchronize work: Execute `git push origin feature/TASK-xxx` to publish the completed feature branch to the public GitHub repository.
+- Emit the standardized report.
 
 ## Branch & Merge Policy (Dev-First)
 - **`master`:** production/stable only. Never commit or merge directly into it.
@@ -60,20 +63,19 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 ```
 
 ## Local Execution Protocols
-- Run builds/tests locally before reporting done (`npm run build`, `npm run lint`, `tsc --noEmit`).
-- Never run package installers (`npm install`, etc.) unless you are the Architect explicitly authorizing a dependency change via ADR.
+- Run builds/tests locally before reporting done using the appropriate stack commands (e.g., `pytest` / `ruff` for backend, `npm run build` / `tsc` for frontend).
+- Never run package installers (`npm install`, `pip install`, `poetry add`, etc.) unless you are the Architect explicitly authorizing a dependency change via ADR.
 - Database/Docker commands must target explicit instances (see `rules.md` → Explicit Environmental Scope).
 
 ## Remote Guardrails
-- Agents may `git add` / `git commit` **locally only**.
-- Autonomous `git push` (and any remote interaction) is **forbidden**.
-- After a local commit, halt and let the human operator push.
+- **Allowed:** Agents are authorized to run `git push` ONLY to synchronize their active, assigned `feature/` branches with the remote repository.
+- **Forbidden:** Agents must NEVER push directly to `dev` or `master` (`main`), nor attempt to merge branches or open Pull Requests autonomously. The human operator retains sole authority over branch integration on the main development streams.
 
 ## Reporting Format (required for completion reports)
 - **Status:** brief summary
 - **Branch:** current branch
 - **Changes:** files modified / functions added
-- **Validation:** build/compile output
+- **Validation:** build/compile/linter output
 - **Todo:** todo.md state
 - **Commit:** 7-char hash
 

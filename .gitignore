@@ -1,0 +1,15 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
