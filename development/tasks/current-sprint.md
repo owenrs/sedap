@@ -284,4 +284,38 @@
   - OpenAI provider requires `OPENAI_API_KEY`; fail fast if missing when selected.
   - Upsert into the same collection the search layer reads; chunk_id is the vector id.
 
+---
+
+## Task 9: Semantic Search Endpoint & Query Router
+
+- **Task ID:** TASK-009
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Implement a functional GET `/api/v1/search` semantic search endpoint
+  that embeds the query via the configured EmbeddingService, runs a cosine
+  similarity lookup against the VectorStorageClient, and returns ranked matching
+  chunks with confidence scores.
+- **Directives:**
+  1. Create `app/api/v1/search.py` and include it in `app/main.py`.
+  2. GET `/api/v1/search` with `q: str` (required), `limit: int = 5`,
+     `collection: str = "chunks"` (matches the ingestion collection).
+  3. Use `request.app.state.embedding_service` to embed `q`.
+  4. Call `request.app.state.vector_store.search_vectors()` with the query vector.
+  5. Map hits to a strict `SearchResultsPayload` Pydantic model (text content,
+     source metadata, cosine similarity score).
+  6. Return empty array `[]` with `200 OK` when no matches.
+- **Acceptance Criteria:**
+  - [x] GET `/api/v1/search?q=...` runs end-to-end without network blocking on local model.
+  - [x] Search responses strongly typed with explicit score-metric schemas.
+  - [x] Results ranked descending by similarity score.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - Default `collection="chunks"` mirrors the ingestion collection name
+    (TASK-008 `COLLECTION_NAME`); the directive's `"documents"` default was
+    adjusted so search returns ingested data without renaming the store.
+  - Requires `app.state.embedding_service` bound at lifespan (added alongside
+    `vector_store`).
+  - Local provider is offline/dependency-free; empty-result case returns 200 + [].
+
 

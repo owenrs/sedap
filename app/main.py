@@ -17,6 +17,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     vector_store: VectorStorageClient = get_vector_store()
     embedding_service: EmbeddingService = get_embedding_service()
     app.state.vector_store = vector_store
+    app.state.embedding_service = embedding_service
 
     worker = lambda job_id, payload: extract_document(  # noqa: E731 - bound closure
         job_id, payload, vector_store=vector_store, embedding_service=embedding_service
