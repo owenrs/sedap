@@ -16,7 +16,7 @@
   - *Directives:* Hook up an NLP parser (or lightweight local spaCy/instructor-LLM layer) to extract key metadata entities from chunks.
 
 ## Phase 3: Vector Storage & Embedding Layer
-- [ ] Milestone: Embedded vector database baseline (Qdrant / pgvector)
+- [x] Milestone: Embedded vector database baseline (Qdrant / pgvector)
   - *Directives:* Spin up the database instance (local docker-compose) and write the asynchronous client connection factory.
 - [ ] Milestone: Embedding Generation & Synchronization Engine
   - *Directives:* Integrate Sentence-Transformers or OpenAI embedding API; build bulk upsert pipelines with strict error/retry handling.
