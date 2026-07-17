@@ -114,7 +114,7 @@
 ## Task 4: Async Ingestion Pipeline Scaffolding
 
 - **Task ID:** TASK-004
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 2: Ingestion & Processing Layer
 - **Owner Role:** Builder
 - **Goal:** Establish a non-blocking, asynchronous file-ingestion pipeline using a
   clean in-memory queue (`asyncio.Queue` + background worker loop), abstracted
@@ -153,7 +153,7 @@
 ## Task 5: Chunking & Text Splitting Engine
 
 - **Task ID:** TASK-005
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 2: Ingestion & Processing Layer
 - **Owner Role:** Builder
 - **Goal:** Replace the placeholder extraction in the background worker with a
   configurable text-chunking engine that splits raw text into overlapping,
@@ -186,7 +186,7 @@
 ## Task 6: Entity Extraction Service Integration
 
 - **Task ID:** TASK-006
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 2: Ingestion & Processing Layer
 - **Owner Role:** Builder
 - **Goal:** Introduce a modular, interface-driven Entity Extraction service that
   enriches each chunk's metadata with extracted entities (rule-based baseline),
@@ -217,7 +217,7 @@
 ## Task 7: Embedded Vector Storage Layer Baseline
 
 - **Task ID:** TASK-007
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 3: Vector Storage & Embedding Layer
 - **Owner Role:** Builder
 - **Goal:** Establish a modular, interface-driven Vector Storage service with an
   in-memory provider (no external DB) that stores chunk vectors and runs local
@@ -253,7 +253,7 @@
 ## Task 8: Embedding Generation & Synchronization Engine
 
 - **Task ID:** TASK-008
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 3: Vector Storage & Embedding Layer
 - **Owner Role:** Builder
 - **Goal:** Establish an interface-driven Embedding Service that replaces the mock
   vector generator, converting chunk text into real multi-dimensional vectors via
@@ -289,7 +289,7 @@
 ## Task 9: Semantic Search Endpoint & Query Router
 
 - **Task ID:** TASK-009
-- **Phase / Sprint:** Phase 1 — Initialization
+- **Phase / Sprint:** Phase 3: Vector Storage & Embedding Layer
 - **Owner Role:** Builder
 - **Goal:** Implement a functional GET `/api/v1/search` semantic search endpoint
   that embeds the query via the configured EmbeddingService, runs a cosine
