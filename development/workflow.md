@@ -15,10 +15,11 @@ The standardized lifecycle, branching policy, commit format, and local execution
 ### 3. Plan
 - Output a 2-sentence plan for that one task.
 - Ask the human for permission before writing code (unless explicitly pre-approved).
+- **Branch Prerequisite:** Once the plan is approved, the very first command executed MUST be creating the task branch. Do not modify workspace files on `dev` or `master`.
 
 ### 4. Execute
-- Implement on a feature branch (never `master`/`dev` directly).
-- Keep edits atomic and strictly within scope.
+- **Branch Verification:** Confirm you have successfully checked out the dedicated feature branch. Name it exactly following the pattern: `feature/TASK-XXX-short-slug` (matching the Task ID from `current-sprint.md`).
+- Implement the task, keeping edits atomic and strictly within scope.
 
 ### 5. Verify (mandatory completion gate)
 All four reviews must pass before proceeding to Phase 6.
@@ -26,8 +27,10 @@ All four reviews must pass before proceeding to Phase 6.
 - **Requirement review:** Does the work solve the requested problem? Check against the active acceptance criteria in `tasks/current-sprint.md` / `todo.md`.
 - **Technical review:** Is architecture respected? Check against the governing ADR (if any) and `architecture.md` system shape. No unapproved file-tree, schema, or dependency changes.
 - **Quality review:**
-  - If a test suite is present: `Tests pass`.
-  - If no test suite is present: `npm run build` passes + `tsc --noEmit` passes + `npm run lint` passes.
+  - If a test suite is present: `Tests pass` (e.g., `pytest` for Python backend, `vitest`/`playwright` for frontend).
+  - **If no test suite is present:**
+    - **Frontend:** `npm run build` passes + type checks pass (`tsc --noEmit` if TypeScript) + `npm run lint` passes.
+    - **Backend (Python):** Python syntax/types compile without error, and standard linter/format checks pass (`ruff check .`, `black --check`, or `flake8` as defined in `rules.md`).
   - Errors are handled gracefully (no unhandled rejections, no raw DB exceptions to the client).
 - **Documentation review:**
   - Decisions recorded: architectural/schema/dependency decisions have an ADR in `development/decisions/`; resolution-time choices have a `### Decisions & Rationale` block in `development/issues.md`.
@@ -60,8 +63,8 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 ```
 
 ## Local Execution Protocols
-- Run builds/tests locally before reporting done (`npm run build`, `npm run lint`, `tsc --noEmit`).
-- Never run package installers (`npm install`, etc.) unless you are the Architect explicitly authorizing a dependency change via ADR.
+- Run builds/tests locally before reporting done using the appropriate stack commands (e.g., `pytest` / `ruff` for backend, `npm run build` / `tsc` for frontend).
+- Never run package installers (`npm install`, `pip install`, `poetry add`, etc.) unless you are the Architect explicitly authorizing a dependency change via ADR.
 - Database/Docker commands must target explicit instances (see `rules.md` → Explicit Environmental Scope).
 
 ## Remote Guardrails
@@ -73,7 +76,7 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 - **Status:** brief summary
 - **Branch:** current branch
 - **Changes:** files modified / functions added
-- **Validation:** build/compile output
+- **Validation:** build/compile/linter output
 - **Todo:** todo.md state
 - **Commit:** 7-char hash
 
