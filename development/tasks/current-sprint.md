@@ -75,4 +75,38 @@
   - Do NOT implement database connections or ORM models here — only the
     config/validation surface.
 
+---
+
+## Task 3: Establish Code Quality Gates (Ruff & Mypy)
+
+- **Task ID:** TASK-003
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Introduce `ruff` and `mypy` as explicit project quality gates via a
+  central root `pyproject.toml`, and make the existing `app/` codebase pass both
+  with zero errors.
+- **Directives:**
+  1. Create `requirements-dev.txt` at the project root pinning the latest stable
+     `ruff` and `mypy`.
+  2. Create a root `pyproject.toml` configuring both tools: mypy `strict = true`;
+     ruff select `F, E, W, I, B` (plus `format` config).
+  3. Update `development/knowledge/environment.md` Quick Start to install both
+     `requirements.txt` and `requirements-dev.txt`.
+  4. Run `ruff check .`, `ruff format .`, and `mypy .`; fix any style/type
+     divergence until both exit with 0 errors.
+- **Acceptance Criteria:**
+  - [x] `requirements-dev.txt` exists with pinned `ruff` and `mypy` versions.
+  - [x] Root `pyproject.toml` exists with valid config for both tools.
+  - [x] `ruff check .` returns clean (zero errors).
+  - [x] `mypy app/` returns successfully (zero type errors).
+  - [x] `environment.md` Quick Start lists dev dependency setup accurately.
+  - [x] Sprint tracking updated locally; feature branch pushed to origin.
+- **Notes / Risks:**
+  - mypy `strict = true` is aggressive; the current `app/` code is small, so fix
+    any strictness findings (e.g., implicit `Any`, missing return types) before
+    reporting done.
+  - Keep `requirements-dev.txt` separate from runtime `requirements.txt` so prod
+    installs stay lean.
+  - Do NOT alter runtime behavior/config schema; this task is tooling only.
+
 

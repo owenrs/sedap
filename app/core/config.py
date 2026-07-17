@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import lru_cache
 
-from pydantic import PostgresDsn, Field
+from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,7 +38,9 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    # Settings() reads required fields from the environment; mypy strict cannot
+    # see pydantic-settings' env injection, so the call-arg check is suppressed.
+    return Settings()  # type: ignore[call-arg]
 
 
 settings = get_settings()

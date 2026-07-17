@@ -39,8 +39,8 @@ All four reviews must pass before proceeding to Phase 6.
 
 ### 6. Report
 - Commit locally with a conventional message.
-- Emit the standardized report (see Reporting Format below).
-- **Remote Guardrail:** Do not execute `git push` or open remote pull requests. The human operator retains sole authority over remote synchronization and final branch merging.
+- Synchronize work: Execute `git push origin feature/TASK-xxx` to publish the completed feature branch to the public GitHub repository.
+- Emit the standardized report.
 
 ## Branch & Merge Policy (Dev-First)
 - **`master`:** production/stable only. Never commit or merge directly into it.
@@ -68,8 +68,8 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 - Database/Docker commands must target explicit instances (see `rules.md` → Explicit Environmental Scope).
 
 ## Remote Guardrails
-- **Allowed:** Agents have full authority to execute `git push` to synchronize their active `feature/` branches with the remote repository upon task completion.
-- **Forbidden:** Agents must NEVER push directly to the `dev` or `master` branches, nor attempt to merge feature branches into `dev` autonomously. Branch integration and primary branch updates are strictly restricted to the human operator.
+- **Allowed:** Agents are authorized to run `git push` ONLY to synchronize their active, assigned `feature/` branches with the remote repository.
+- **Forbidden:** Agents must NEVER push directly to `dev` or `master` (`main`), nor attempt to merge branches or open Pull Requests autonomously. The human operator retains sole authority over branch integration on the main development streams.
 
 ## Reporting Format (required for completion reports)
 - **Status:** brief summary
