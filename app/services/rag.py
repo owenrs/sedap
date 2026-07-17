@@ -48,8 +48,8 @@ class RAGOrchestrator:
         vectors = await self._embedding_service.generate_embeddings([user_query])
         query_vector = vectors[0]
 
-        hits: list[SearchHit] = await self._vector_store.search_vectors(
-            self._collection, query_vector, limit=self._top_k
+        hits: list[SearchHit] = await self._vector_store.search_hybrid(
+            self._collection, user_query, query_vector, limit=self._top_k
         )
 
         context_blocks = [

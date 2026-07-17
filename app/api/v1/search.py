@@ -55,7 +55,7 @@ async def search(
     query_vector = vectors[0]
 
     store = _store(request)
-    hits = await store.search_vectors(collection, query_vector, limit=limit)
+    hits = await store.search_hybrid(collection, q, query_vector, limit=limit)
 
     items = [_to_item(hit) for hit in hits]
     return SearchResultsPayload(

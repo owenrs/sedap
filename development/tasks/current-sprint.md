@@ -352,4 +352,36 @@
   - OpenAI provider fails fast without `OPENAI_API_KEY`; untested live (no key).
   - Mock provider is deterministic/non-semantic; proves the transport + stitching.
 
+---
+
+## Task 11: Hybrid Search (BM25 + Dense Vector + RRF)
+
+- **Task ID:** TASK-011
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Upgrade retrieval to hybrid search: a BM25 sparse keyword index
+  alongside the dense vector index, fused via Reciprocal Rank Fusion (RRF, k=60).
+- **Directives:**
+  1. Add `rank-bm25==0.2.2` to `requirements.txt`.
+  2. Extend `InMemoryVectorStore` (or a unified hybrid wrapper in
+     `app/core/vector_store.py`) to hold a process-local BM25 corpus per
+     collection; handle empty corpus gracefully.
+  3. Ingestion pipeline tokenizes each chunk (lowercase alphabetic split) and feeds
+     the BM25 corpus as well as the dense vectors.
+  4. Implement an optimized `reciprocal_rank_fusion(rank_lists, k=60)` function.
+  5. Add `search_hybrid(query_text, limit)` to the client interface + store: runs
+     dense cosine ranking AND BM25, then RRF-fuses, returns descending order.
+  6. Wire GET `/api/v1/search` and `RAGOrchestrator` to use hybrid search (default).
+- **Acceptance Criteria:**
+  - [x] Ingestion updates both sparse BM25 corpus and dense vector space.
+  - [x] RRF re-ranks the unified results from overlapping system ranks.
+  - [x] GET `/api/v1/search` and POST `/api/v1/query` use hybrid search natively.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - BM25 corpus is corpus-order based; map BM25 doc index back to chunk_id so
+    fused hits carry the right payload.
+  - Keep RRF constant k=60 in settings or a module constant (no magic numbers).
+  - Fallback: if BM25 corpus empty, dense ranking alone should still return hits.
+
 
