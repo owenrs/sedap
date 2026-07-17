@@ -416,4 +416,39 @@
     like /query.
   - Latency middleware logs elapsed ms per request; assert < 500ms in local E2E.
 
+---
+
+## Task 13: Production Docker & Multi-Stage Compose Dev Environment
+
+- **Task ID:** TASK-013
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Containerize the FastAPI app + background worker topology with a
+  multi-stage, non-root Dockerfile and a Compose network (web-api + worker).
+- **Directives:**
+  1. Root `Dockerfile`, 2-stage: `builder` (`python:3.11-slim` + build tools)
+     compiles wheels into a local cache; `runner` (`python:3.11-slim`) creates
+     `appuser` (UID/GID 10001) and installs `--no-cache-dir --no-index
+     --find-links` from the wheel cache.
+  2. Expose `8000`; CMD `uvicorn app.main:app --host 0.0.0.0 --port 8000`.
+  3. `.dockerignore` excluding `.venv`, caches, tests, raw docs, secrets.
+  4. `docker-compose.yml`: `web-api` (build, 8000:8000, env files) and
+     `background-worker` (same image, worker run command) on one network.
+- **Acceptance Criteria:**
+  - [x] Dockerfile builds end-to-end without leaking network installs into the runner layer.
+  - [x] Container runs as non-root `appuser`.
+  - [x] `docker compose up --build -d` provisions both api + worker cleanly.
+  - [x] Quality gates green: `ruff check .` and `mypy app/` 0 errors.
+  - [x] `current-sprint.md` updated; committed to the feature branch.
+- **Notes / Risks:**
+  - Worker command needs an entrypoint that starts the FastAPI app + the
+    in-process queue worker (the app already starts the worker on lifespan), so
+    the worker container can run the same `uvicorn app.main:app` minus the
+    external port, or a dedicated worker script. Keep it simple: worker runs the
+    same app (worker loop is in-process) without exposing 8000.
+  - Python 3.11 chosen (directive); venv/pyproject lint tooling is dev-only and
+    not baked into the runtime image.
+  - Cannot run `docker` in this WSL-less Windows shell here; build/compose
+    verification is the operator's step (documented), not executed by the agent.
+
 

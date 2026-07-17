@@ -1,0 +1,40 @@
+# Python / venv
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local environment / secrets
+.env
+.env.local
+.env.*
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Raw source documents (avoid bloating build context)
+*.pdf
+*.txt
+docs/
+development/
+
+# Docker / CI
+Dockerfile
+.dockerignore
+docker-compose.yml
+.github/
+
+# Editor / OS
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
