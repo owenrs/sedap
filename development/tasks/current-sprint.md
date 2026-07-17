@@ -470,10 +470,10 @@
      `ruff check .`, `mypy app/`, `pytest`.
   5. Fail fast on non-zero exit from any quality gate.
 - **Acceptance Criteria:**
-  - [ ] `.github/workflows/ci.yml` is valid and committed.
-  - [ ] Pipeline handles Python 3.11 setup, dependency caching, and checks cleanly.
-  - [ ] Quality gates: `ruff check .` and `mypy app/` return 0 errors in CI.
-  - [ ] `current-sprint.md` updated; committed to the isolated feature branch.
+  - [x] `.github/workflows/ci.yml` is valid and committed.
+  - [x] Pipeline handles Python 3.11 setup, dependency caching, and checks cleanly.
+  - [x] Quality gates: `ruff check .` and `mypy app/` return 0 errors in CI.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
 - **Notes / Risks:**
   - No project test suite exists yet; add a minimal `tests/test_smoke.py` that
     imports app modules to ensure `pytest` collects and passes at least one test.

@@ -3,21 +3,12 @@ import os
 os.environ.setdefault("DATABASE_URL", "postgresql://user:pass@localhost:5432/db")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
-from app.core.config import get_settings
-from app.core.entities import ExtractedEntities
-from app.core.memory import ChatMessage, BaseMemoryStore, InMemoryMemoryStore
-from app.core.queue import JobQueue, InMemoryQueue
-from app.core.vector_store import VectorStorageClient, VectorRecord, InMemoryVectorStore
-from app.services.embeddings import EmbeddingService, LocalEmbeddingProvider, OpenAIEmbeddingProvider
-from app.services.llm import LLMService, MockLLMProvider, OpenAILLMProvider
-from app.services.rag import RAGOrchestrator, RAGResponsePayload
-from app.services.chunker import ChunkRecord, chunk_text
-from app.services.extractor import ExtractedEntities as ExtractorEntities
-from app.services.ingestion import extract_document
-from app.api.v1.search import router as search_router
-from app.api.v1.query import router as query_router
 from app.api.v1.chat import router as chat_router
+from app.api.v1.query import router as query_router
+from app.api.v1.search import router as search_router
+from app.core.config import get_settings
 from app.main import app
+from app.services.chunker import chunk_text
 
 
 def test_settings_loads():
@@ -26,7 +17,7 @@ def test_settings_loads():
 
 
 def test_chunker_returns_records():
-    records = chunk_text("hello world foo bar", chunk_size=5, chunk_overlap=2)
+    records = chunk_text("hello world foo bar", source_name="test", chunk_size=5, chunk_overlap=2)
     assert len(records) > 0
     assert hasattr(records[0], "text_content")
 
