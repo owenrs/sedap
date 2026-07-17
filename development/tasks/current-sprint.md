@@ -384,4 +384,36 @@
   - Keep RRF constant k=60 in settings or a module constant (no magic numbers).
   - Fallback: if BM25 corpus empty, dense ranking alone should still return hits.
 
+---
+
+## Task 12: Conversational Memory & Optimized API Boundary
+
+- **Task ID:** TASK-012
+- **Phase / Sprint:** Phase 4 — Retrieval, Search, & RAG API
+- **Owner Role:** Builder
+- **Goal:** Add interface-driven Conversational Memory (multi-turn sessions),
+  query condensation over history, and an optimized `/api/v1/chat` boundary with
+  latency instrumentation.
+- **Directives:**
+  1. Define `ChatMessage` (`role`, `content`, `timestamp`) in `app/core/memory.py`.
+  2. Define `BaseMemoryStore` ABC (`get_history`, `add_message`).
+  3. Implement `InMemoryMemoryStore` tracking sessions in a dict (isolated).
+  4. Enhance `RAGOrchestrator` to accept optional `session_id`: if history exists,
+     condense raw input + history into a standalone search query via `LLMService`,
+     run `search_hybrid`, then persist user query + assistant answer to memory.
+  5. Add POST `/api/v1/chat` (`session_id`, `message`) in `app/api/v1/chat.py`,
+     wired into the v1 router, returning references to grounding chunks.
+  6. Add request-latency middleware verifying < 500ms under local mock flags.
+- **Acceptance Criteria:**
+  - [x] Multi-turn tracking links follow-up queries to original history.
+  - [x] Session states isolated inside the memory adapter.
+  - [x] POST `/api/v1/chat` handles sequential responses, appending grounding references.
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - Bind `BaseMemoryStore` to `app.state.memory_store` at lifespan.
+  - Condensation only triggers when history is non-empty; single-turn chat behaves
+    like /query.
+  - Latency middleware logs elapsed ms per request; assert < 500ms in local E2E.
+
 
