@@ -181,4 +181,35 @@
   - Overlap must be strictly less than `chunk_size`; validate to avoid infinite/empty loops.
   - PDF handling is mocked/clean-text only this baseline — no parser dependency added.
 
+---
+
+## Task 6: Entity Extraction Service Integration
+
+- **Task ID:** TASK-006
+- **Phase / Sprint:** Phase 1 — Initialization
+- **Owner Role:** Builder
+- **Goal:** Introduce a modular, interface-driven Entity Extraction service that
+  enriches each chunk's metadata with extracted entities (rule-based baseline),
+  behind a strict Pydantic parsing layer.
+- **Directives:**
+  1. Define strict Pydantic entity models in `app/core/entities.py`
+     (`ExtractedEntities`: `keywords`, `organizations`, `people`, `dates`).
+  2. Define an abstract extractor interface/base in `app/services/extractor.py`.
+  3. Implement `RuleBasedExtractor` scanning chunk text for signatures
+     (uppercase proper nouns, date patterns, high-value keywords).
+  4. Update `app/services/ingestion.py` to run each `ChunkRecord` through the
+     extractor and bind `ExtractedEntities` into the chunk's `metadata`.
+  5. Make extractor type / default keywords controllable via `app/core/config.py`.
+- **Acceptance Criteria:**
+  - [x] A formal entity extraction interface exists, decoupling extraction from the pipeline.
+  - [x] Background workers process chunking AND entity extraction sequentially without error.
+  - [x] GET `/api/v1/tasks/{job_id}` for a completed task shows chunks with enriched entity metadata (non-empty keywords/entities).
+  - [x] Quality gates pass: `ruff check .` and `mypy app/` return 0 errors.
+  - [x] Task tracked in `current-sprint.md`; changes committed to the isolated feature branch.
+- **Notes / Risks:**
+  - Rule-based only this baseline; the interface allows an LLM/ML provider later
+    with zero change to ingestion wiring.
+  - Keep extractor keyword lists/type in settings to avoid hardcoded tuning in routes.
+  - Entities stored under a dedicated `entities` key inside chunk `metadata`.
+
 

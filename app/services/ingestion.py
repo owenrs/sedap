@@ -4,6 +4,7 @@ import logging
 from app.core.config import settings
 from app.core.jobs import JobResult
 from app.services.chunker import chunk_text
+from app.services.extractor import get_extractor
 
 logger = logging.getLogger("sedap.ingestion")
 
@@ -20,7 +21,13 @@ async def extract_document(job_id: str, payload: dict[str, object]) -> JobResult
     await asyncio.sleep(settings.MOCK_EXTRACTION_DELAY_SECONDS)
 
     chunks = chunk_text(raw_text, source_name=filename)
-    logger.info("job %s: produced %d chunks", job_id, len(chunks))
+
+    extractor = get_extractor()
+    for chunk in chunks:
+        entities = extractor.extract(chunk.text_content)
+        chunk.metadata["entities"] = entities.model_dump()
+
+    logger.info("job %s: produced %d chunks with entity enrichment", job_id, len(chunks))
 
     return JobResult(
         extracted_text=raw_text,

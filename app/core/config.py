@@ -54,6 +54,14 @@ class Settings(BaseSettings):
         description="Overlap in characters between consecutive chunks.",
         ge=0,
     )
+    ENTITY_EXTRACTOR: str = Field(
+        default="rule",
+        description="Entity extractor provider: 'rule' (local rule-based) or 'llm' (future).",
+    )
+    ENTITY_KEYWORDS: str = Field(
+        default="Project,API,Report,Summary,Analysis,Database",
+        description="Comma-separated high-value keywords for the rule-based extractor.",
+    )
 
 
 @lru_cache
