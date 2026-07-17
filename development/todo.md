@@ -6,10 +6,10 @@
 - [x] Milestone: Establish Code Quality Gates (Ruff & Mypy)
 
 ## Phase 2: Ingestion & Processing Layer
-- [ ] Milestone: Async document processing pipeline (extractor -> chunker)
+- [x] Milestone: Async document processing pipeline (extractor -> chunker)
   - *Directives:* Implement background workers (e.g., Celery or Arq) to process PDFs, TXT, and Markdown files asynchronously.
   - *Validation:* Fast, non-blocking ingestion endpoint returning 202 Accepted; strict validation on file boundaries and encoding.
-- [ ] Milestone: Chunking & Text Splitting Engine
+- [x] Milestone: Chunking & Text Splitting Engine
   - *Directives:* Implement semantic or token-based splitters with overlapping margins to keep contextual integrity.
   - *Validation:* Unit tests verifying chunk limits, overlaps, and Metadata preservation (source file, UUID, page numbers).
 - [ ] Milestone: Entity Extraction Service integration
