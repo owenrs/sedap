@@ -3,6 +3,9 @@
 Actionable workarounds for environment-specific failures, grouped by category. The QA / Copilot appends newly discovered gotchas and successful prompt patterns here after each task (see `agents.md` → Post-Task Handoff Protocol). Keep entries concise, actionable, and this file lightweight.
 
 ## Docker
+- **`.dockerignore` accidentally excludes `requirements.txt`:** If Docker builds fail with `file not found: requirements.txt` or pip cannot resolve dependencies, inspect `.dockerignore` for a blanket `*.txt` pattern. That pattern excludes `requirements.txt` from the build context, so the Dockerfile's `COPY requirements.txt .` fails silently or the pip install step falls back to network/PyPI.
+  - **Fix:** Remove the `*.txt` pattern from `.dockerignore`; explicitly whitelist `requirements.txt` if needed, or only ignore specific `.txt` files you actually want excluded.
+  - **Verification:** After editing `.dockerignore`, rebuild with `docker build --no-cache` to confirm the file is included in the context.
 - **Bypassing Supabase CLI Migration Failures (Windows):** If the native Windows CLI fails with a `FileSystem.readFile` or `PgClient connection` error when running migrations (e.g. `supabase migration up` → `NotFound: FileSystem.readFile (C:\Users\<user>\.supabase\profile)`), bypass the CLI and apply the migration directly to the local Docker container.
 
   > The local container is **raw PostgreSQL** (`postgres:15-alpine`, `POSTGRES_DB=ampcs`), not a Supabase stack — so connect to the `ampcs` database, **not** `postgres`.

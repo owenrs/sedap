@@ -22,7 +22,6 @@ test_*.py
 
 # Raw source documents (avoid bloating build context)
 *.pdf
-*.txt
 docs/
 development/
 
