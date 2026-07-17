@@ -18,7 +18,7 @@
 ## Phase 3: Vector Storage & Embedding Layer
 - [x] Milestone: Embedded vector database baseline (Qdrant / pgvector)
   - *Directives:* Spin up the database instance (local docker-compose) and write the asynchronous client connection factory.
-- [ ] Milestone: Embedding Generation & Synchronization Engine
+- [x] Milestone: Embedding Generation & Synchronization Engine
   - *Directives:* Integrate Sentence-Transformers or OpenAI embedding API; build bulk upsert pipelines with strict error/retry handling.
   - *Validation:* Querying database returns semantically similar records with a cosine similarity score.
 
