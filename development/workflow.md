@@ -34,13 +34,13 @@ All four reviews must pass before proceeding to Phase 6.
   - Errors are handled gracefully (no unhandled rejections, no raw DB exceptions to the client).
 - **Documentation review:**
   - Decisions recorded: architectural/schema/dependency decisions have an ADR in `development/decisions/`; resolution-time choices have a `### Decisions & Rationale` block in `development/issues.md`.
-  - Tasks updated: `todo.md` checkboxes reflect actual state.
+  - **Tasks updated:** The agent MUST explicitly check off the completed task checkboxes `[x]` inside `development/tasks/current-sprint.md` before proceeding to Phase 6. High-level roadmap items in `todo.md` remain unchecked until the operator integrates the feature branch.
   - Knowledge promoted: reusable lessons moved to `development/knowledge/` (or `rules.md` if universal); `issues.md` entry has a `**Knowledge:**` pointer.
 
 ### 6. Report
 - Commit locally with a conventional message.
 - Emit the standardized report (see Reporting Format below).
-- **Halt.** Do not push; instruct the operator to run `git push`.
+- **Remote Guardrail:** Do not execute `git push` or open remote pull requests. The human operator retains sole authority over remote synchronization and final branch merging.
 
 ## Branch & Merge Policy (Dev-First)
 - **`master`:** production/stable only. Never commit or merge directly into it.
@@ -70,7 +70,7 @@ Governs Architect/Builder/QA personas; see ADR-001 for auth context.
 ## Remote Guardrails
 - Agents may `git add` / `git commit` **locally only**.
 - Autonomous `git push` (and any remote interaction) is **forbidden**.
-- After a local commit, halt and let the human operator push.
+- **Remote Guardrail:** Do not execute `git push` or open remote pull requests. The human operator controls remote synchronization.
 
 ## Reporting Format (required for completion reports)
 - **Status:** brief summary
