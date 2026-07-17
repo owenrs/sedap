@@ -448,7 +448,38 @@
     same app (worker loop is in-process) without exposing 8000.
   - Python 3.11 chosen (directive); venv/pyproject lint tooling is dev-only and
     not baked into the runtime image.
-  - Cannot run `docker` in this WSL-less Windows shell here; build/compose
-    verification is the operator's step (documented), not executed by the agent.
+   - Cannot run `docker` in this WSL-less Windows shell here; build/compose
+     verification is the operator's step (documented), not executed by the agent.
+
+---
+
+## Task 14: Automated GitHub Actions CI Pipeline
+
+- **Task ID:** TASK-014
+- **Phase / Sprint:** Phase 5 — Containerization & CI/CD Scaffolding
+- **Owner Role:** Builder
+- **Goal:** Establish an automated CI workflow that runs code quality, type checks,
+  and unit tests on every Push or Pull Request targeting the `dev` or `main`
+  branches.
+- **Directives:**
+  1. Create `.github/workflows/ci.yml`.
+  2. Trigger on `push` to `[main, dev]` and `pull_request` targeting `[main, dev]`.
+  3. Single job `test-and-lint` on `ubuntu-latest`.
+  4. Steps: checkout (`actions/checkout@v4`), setup Python 3.11 (`actions/setup-python@v5`),
+     pip cache, install deps (`requirements.txt` + `pytest`, `ruff`, `mypy`),
+     `ruff check .`, `mypy app/`, `pytest`.
+  5. Fail fast on non-zero exit from any quality gate.
+- **Acceptance Criteria:**
+  - [ ] `.github/workflows/ci.yml` is valid and committed.
+  - [ ] Pipeline handles Python 3.11 setup, dependency caching, and checks cleanly.
+  - [ ] Quality gates: `ruff check .` and `mypy app/` return 0 errors in CI.
+  - [ ] `current-sprint.md` updated; committed to the isolated feature branch.
+- **Notes / Risks:**
+  - No project test suite exists yet; add a minimal `tests/test_smoke.py` that
+    imports app modules to ensure `pytest` collects and passes at least one test.
+  - `requirements-dev.txt` is not used by CI; workflow installs `pytest`, `ruff`,
+    `mypy` directly per directive.
+  - Workflow is declarative only; local execution in this Windows shell cannot
+    validate GitHub Actions runs (operator verifies in GitHub UI after push).
 
 
